@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Contact & Inquiry</title>
+  <style>
+    :root {
+      --primary-color: #000;
+      --accent-color: #d4af37;
+      --error-color:  #ef4444;
+      --bg-color:     #111;
+      --input-bg:     #222;      /* Darker background for inputs */
+      --border-color: #d4af37;
+      --text-color:   #fff;
+      --placeholder:  #888;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+    form {
+      background: var(--bg-color);
+      border: 2px solid var(--accent-color);
+      border-radius: 8px;
+      padding: 2rem;
+      max-width: 900px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      color: var(--accent-color);
+      margin-bottom: .25rem;
+      font-size: 2rem;
+    }
+    p.form-description { /* Added class for main description */
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+      color: #ccc;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+      gap: 1rem;
+    }
+    .field {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1rem; /* Add some consistent bottom margin */
+    }
+    .field.full-width { /* Utility class for fields spanning full width */
+        grid-column: 1 / -1;
+    }
+    label {
+      margin-bottom: .25rem;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      padding: .5rem 2rem .5rem .5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background: var(--input-bg);
+      color: var(--text-color);
+      outline: none;
+      width: 100%; /* Ensure inputs take full width of their container */
+      box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    }
+    input::placeholder,
+    textarea::placeholder {
+      color: var(--placeholder);
+    }
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent-color);
+    }
+    .indicator {
+      position: absolute;
+      top: calc(50% + 0.125rem); /* Adjust for label height if input is not directly under label */
+      right: .75rem;
+      transform: translateY(calc(-50% + 0.125rem)); /* Adjust if label is present */
+      font-size: 1rem;
+      opacity: 0;
+      transition: opacity .2s;
+    }
+    /* Adjust indicator for textareas */
+    textarea ~ .indicator {
+        top: 1.5rem; /* Adjust as needed depending on textarea padding and label */
+        transform: translateY(0);
+    }
+    /* Adjust indicator for selects that might have different heights */
+    select ~ .indicator {
+        top: calc(50% + 0.125rem); /* Adjust based on your select height and label */
+         transform: translateY(calc(-50% + 0.125rem));
+    }
+
+
+    .indicator.success { color: var(--accent-color); opacity:1; }
+    .indicator.error   { color: var(--error-color);   opacity:1; }
+
+    .error-msg {
+      color: var(--error-color);
+      font-size: .875rem;
+      margin-top: .25rem;
+      display: none;
+    }
+    .error-msg.active { display: block; }
+    .form-error {
+      background: var(--error-color);
+      color: #fff;
+      padding: .5rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      display: none;
+      text-align: center;
+    }
+    .actions {
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+    button {
+      background: var(--accent-color);
+      color: var(--bg-color);
+      padding: .75rem 2rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform .1s, background-color .2s, color .2s;
+    }
+    button:hover {
+      transform: scale(1.02);
+      background-color: #fff; /* Example hover effect */
+      color: var(--primary-color);
+    }
+    button:disabled {
+        background-color: #555;
+        color: #999;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .conditional-section {
+      grid-column: 1 / -1; /* Makes the container span all columns if inside a grid */
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+      border-top: 1px solid var(--accent-color);
+      margin-top: 1rem;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .conditional-section h2 {
+      color: var(--accent-color);
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      text-align: left;
+    }
+    .radio-group-label { /* Label for the radio group itself */
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .radio-option {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .radio-option input[type="radio"] {
+      margin-right: 0.75rem;
+      width: auto; /* Override full width for radio */
+      flex-shrink: 0;
+    }
+    .radio-option label {
+      font-weight: normal;
+      margin-bottom: 0;
+    }
+    /* Adjust indicator position for fields with labels above them */
+    .field > label + input ~ .indicator,
+    .field > label + select ~ .indicator,
+    .field > label + textarea ~ .indicator,
+    .field > .radio-group-label + div ~ .indicator { /* For radio group container */
+        top: calc(1em + 0.5rem + 0.75rem); /* Approx (label bottom margin + input padding top + half input height) */
+    }
+    .field > label + textarea ~ .indicator {
+        top: calc(1em + 0.5rem + 0.75rem); /* Adjust if textarea has different padding */
+    }
+
+  </style>
+</head>
+<body>
+  <form id="contactForm">
+    <div id="formError" class="form-error"></div>
+    <h1>Contact & Inquiry</h1>
+    <p class="form-description">Please provide your details and interest so we can assist you promptly.</p>
+
+    <div class="grid">
+      <div class="field">
+        <label for="firstName">First Name *</label>
+        <input type="text" id="firstName" name="firstName" data-validate required placeholder="John">
+        <span class="indicator"></span>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field">
+        <label for="lastName">Last Name *</label>
+        <input type="text" id="lastName" name="lastName" data-validate required placeholder="Doe">
+        <span class="indicator"></span>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field">
+        <label for="country">Country *</label>
+        <select id="country" name="country" data-validate required>
+          <option value="">--Select--</option>
+        </select>
+        <span class="indicator"></span>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field">
+        <label for="city">City *</label>
+        <select id="city" name="city" data-validate required>
+          <option value="">--Select country first--</option>
+        </select>
+        <span class="indicator"></span>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field">
+        <label for="pincode">Pincode</label>
+        <input type="text" id="pincode" name="pincode" data-validate placeholder="10001">
+        <span class="indicator"></span>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field">
+        <label for="countryCode">Country Code</label>
+        <input type="text" id="countryCode" name="countryCode" readonly>
+        <span class="indicator"></span> </div>
+      <div class="field">
+        <label for="phone">Phone Number *</label>
+        <input type="text" id="phone" name="phone" data-validate required placeholder="(555) 123-4567">
+        <span class="indicator"></span>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field">
+        <label for="email">Email ID *</label>
+        <input type="email" id="email" name="email" data-validate required placeholder="you@company.com">
+        <span class="indicator"></span>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field field-full-width"> <label for="company">Company Name *</label>
+        <input type="text" id="company" name="company" data-validate required placeholder="Your Co.">
+        <span class="indicator"></span>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field field-full-width">
+        <label for="companySize">Company Size *</label>
+        <select id="companySize" name="companySize" data-validate required>
+          <option value="">--Select--</option>
+          <option>1-10 employees</option>
+          <option>11-50 employees</option>
+          <option>51-200 employees</option>
+          <option>201-500 employees</option>
+          <option>501+ employees</option>
+        </select>
+        <span class="indicator"></span>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field field-full-width">
+        <label for="interest">Interest *</label>
+        <select id="interest" name="interest" data-validate required>
+          <option value="">--Select--</option>
+          <option value="Product Demo">Product Demo</option>
+          <option value="Consultation">Consultation</option>
+          <option value="Partnership Opportunity">Partnership Opportunity</option>
+          <option value="General Inquiry">General Inquiry</option>
+        </select>
+        <span class="indicator"></span>
+        <div class="error-msg"></div>
+      </div>
+    </div>
+
+    <div id="productDemoFields" class="conditional-section" style="display: none;">
+      <h2>Product Demo Details</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="preferredDemoDate">Preferred Demo Date *</label>
+          <input type="date" id="preferredDemoDate" name="preferredDemoDate" data-validate data-conditionally-required="true">
+          <span class="indicator"></span>
+          <div class="error-msg"></div>
+        </div>
+        <div class="field">
+          <label for="preferredDemoTime">Preferred Time Slot *</label>
+          <select id="preferredDemoTime" name="preferredDemoTime" data-validate data-conditionally-required="true">
+            <option value="">--Select Time--</option>
+            <option value="9:00 AM - 11:00 AM">9:00 AM - 11:00 AM</option>
+            <option value="11:00 AM - 1:00 PM">11:00 AM - 1:00 PM</option>
+            <option value="2:00 PM - 4:00 PM">2:00 PM - 4:00 PM</option>
+            <option value="4:00 PM - 6:00 PM">4:00 PM - 6:00 PM</option>
+          </select>
+          <span class="indicator"></span>
+          <div class="error-msg"></div>
+        </div>
+      </div>
+      <div class="field field-full-width">
+        <label for="productInterest">Product Interest *</label>
+        <select id="productInterest" name="productInterest" data-validate data-conditionally-required="true">
+          <option value="">--Select Product--</option>
+          <option value="Alpha Suite">Alpha Suite</option>
+          <option value="Beta Platform">Beta Platform</option>
+          <option value="Gamma Service">Gamma Service</option>
+          <option value="Other Product/Service">Other Product/Service</option>
+        </select>
+        <span class="indicator"></span>
+        <div class="error-msg"></div>
+      </div>
+    </div>
+
+    <div id="consultationFields" class="conditional-section" style="display: none;">
+      <h2>Consultation Details</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="consultationDate">Consultation Date *</label>
+          <input type="date" id="consultationDate" name="consultationDate" data-validate data-conditionally-required="true">
+          <span class="indicator"></span>
+          <div class="error-msg"></div>
+        </div>
+        <div class="field">
+          <label for="consultationTimeSlot">Preferred Time Slot *</label> <select id="consultationTimeSlot" name="consultationTimeSlot" data-validate data-conditionally-required="true">
+            <option value="">--Select Time--</option>
+            <option value="9:00 AM - 11:00 AM">9:00 AM - 11:00 AM</option>
+            <option value="11:00 AM - 1:00 PM">11:00 AM - 1:00 PM</option>
+            <option value="2:00 PM - 4:00 PM">2:00 PM - 4:00 PM</option>
+            <option value="4:00 PM - 6:00 PM">4:00 PM - 6:00 PM</option>
+          </select>
+          <span class="indicator"></span>
+          <div class="error-msg"></div>
+        </div>
+      </div>
+      <div class="field field-full-width">
+        <label for="consultationTopic">Consultation Topic *</label>
+        <select id="consultationTopic" name="consultationTopic" data-validate data-conditionally-required="true">
+          <option value="">--Select Topic--</option>
+          <option>Business Strategy</option>
+          <option>Implementation Support</option>
+          <option>Technical Issues</option>
+          <option>Pricing/Packaging</option>
+          <option>Other</option>
+        </select>
+        <span class="indicator"></span>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field field-full-width">
+        <label for="currentChallenges">Current Challenges (Optional)</label>
+        <textarea id="currentChallenges" name="currentChallenges" data-validate rows="3" placeholder="Max 500 chars"></textarea>
+        <span class="indicator"></span>
+        <div class="error-msg"></div>
+      </div>
+    </div>
+
+    <div id="partnershipFields" class="conditional-section" style="display: none;">
+      <h2>Partnership Opportunity Details</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="partnershipType">Partnership Type *</label>
+          <select id="partnershipType" name="partnershipType" data-validate data-conditionally-required="true">
+              <option value="">--Select Type--</option>
+              <option>Reseller</option>
+              <option>Integration Partner</option>
+              <option>Referral Partner</option>
+              <option>Technology Partner</option>
+              <option>Other</option>
+          </select>
+          <span class="indicator"></span>
+          <div class="error-msg"></div>
+        </div>
+        <div class="field">
+          <label for="businessWebsite">Business Website URL *</label>
+          <input type="text" id="businessWebsite" name="businessWebsite" data-validate data-conditionally-required="true" placeholder="https://yourcompany.com">
+          <span class="indicator"></span>
+          <div class="error-msg"></div>
+        </div>
+        <div class="field">
+          <label for="annualRevenue">Annual Revenue *</label>
+          <select id="annualRevenue" name="annualRevenue" data-validate data-conditionally-required="true">
+            <option value="">--Select Revenue--</option>
+            <option>Under $100K</option>
+            <option>$100K - $500K</option>
+            <option>$500K - $1M</option>
+            <option>$1M - $5M</option>
+            <option>$5M - $10M</option>
+            <option>$10M+</option>
+          </select>
+          <span class="indicator"></span>
+          <div class="error-msg"></div>
+        </div>
+        <div class="field field-full-width">
+            <label for="partnershipGoals">Partnership Goals *</label>
+            <textarea id="partnershipGoals" name="partnershipGoals" data-validate data-conditionally-required="true" rows="3" placeholder="Describe your goals (10-500 chars)"></textarea>
+            <span class="indicator"></span>
+            <div class="error-msg"></div>
+        </div>
+        <div class="field field-full-width">
+          <label for="currentPartnerships">Current Partnerships (Optional)</label>
+          <textarea id="currentPartnerships" name="currentPartnerships" data-validate rows="3" placeholder="Max 300 chars"></textarea>
+          <span class="indicator"></span>
+          <div class="error-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="generalInquiryFields" class="conditional-section" style="display: none;">
+      <h2>General Inquiry Details</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="inquiryCategory">Inquiry Category *</label>
+          <select id="inquiryCategory" name="inquiryCategory" data-validate data-conditionally-required="true">
+            <option value="">--Select Category--</option>
+            <option>Product Information</option>
+            <option>Pricing</option>
+            <option>Technical Support</option>
+            <option>Career Opportunities</option>
+            <option>Media Inquiry</option>
+            <option>Other</option>
+          </select>
+          <span class="indicator"></span>
+          <div class="error-msg"></div>
+        </div>
+        <div class="field"> <span class="radio-group-label">Urgency Level *</span>
+          <div id="urgencyLevelGroup" data-validate data-conditionally-required="true" data-group-name="urgencyLevel">
+            <div class="radio-option">
+              <input type="radio" id="urgencyLow" name="urgencyLevel" value="Low">
+              <label for="urgencyLow">Low - response within 1 week</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="urgencyMedium" name="urgencyLevel" value="Medium">
+              <label for="urgencyMedium">Medium - response within 3 business days</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="urgencyHigh" name="urgencyLevel" value="High">
+              <label for="urgencyHigh">High - response within 24 hours</label>
+            </div>
+          </div>
+          <span class="indicator"></span> <div class="error-msg"></div>   </div>
+      </div>
+      <div class="field field-full-width">
+        <label for="howHeard">How did you hear about us? (Optional)</label>
+        <select id="howHeard" name="howHeard" data-validate>
+          <option value="">--Select Source--</option>
+          <option>Search Engine</option>
+          <option>Social Media</option>
+          <option>Referral</option>
+          <option>Event</option>
+          <option>Advertisement</option>
+          <option>Other</option>
+        </select>
+        <span class="indicator"></span>
+        <div class="error-msg"></div>
+      </div>
+    </div>
+
+    <div class="field field-full-width" style="margin-top:1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+      <label for="message">Message / Additional Information (Optional)</label>
+      <textarea id="message" name="message" rows="4" data-validate placeholder="Max 500 chars"></textarea>
+      <span class="indicator"></span>
+      <div class="error-msg"></div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" id="submitButton">Submit</button>
+    </div>
+  </form>
+
+  <script>
+    const patterns = {
+      name: /^[A-Za-z\s]{2,}$/, // Allow spaces in names
+      city: /^[A-Za-z\s]{2,}$/,
+      pincode: /^[0-9A-Za-z\s-]{3,10}$/, // Allow alphanumeric, space, hyphen for international pincodes
+      phone: /^[0-9\s\-()+]{7,}$/, // Relaxed phone pattern
+      email: /^[^@\s]+@[^@\s]+\.[^@\s]+$/,
+      url: /^https?:\/\/.{3,}/ // Must start with http:// or https://
+    };
+    let countryData = {};
+
+    const form          = document.getElementById('contactForm');
+    const errorBox      = document.getElementById('formError');
+    const countrySelect = document.getElementById('country');
+    const citySelect    = document.getElementById('city');
+    const countryCode   = document.getElementById('countryCode');
+    const interestSelect = document.getElementById('interest');
+    const submitButton  = document.getElementById('submitButton');
+
+    // Conditional Sections
+    const productDemoFields    = document.getElementById('productDemoFields');
+    const consultationFields   = document.getElementById('consultationFields');
+    const partnershipFields    = document.getElementById('partnershipFields');
+    const generalInquiryFields = document.getElementById('generalInquiryFields');
+    const allConditionalSections = [productDemoFields, consultationFields, partnershipFields, generalInquiryFields];
+
+    function setFieldStates(sectionElement, isEnabled) {
+        const fieldsInvolved = sectionElement.querySelectorAll('input, select, textarea, [data-group-name]');
+        fieldsInvolved.forEach(field => {
+            const isRadioGroupContainer = field.hasAttribute('data-group-name');
+
+            if (isRadioGroupContainer) {
+                const groupName = field.dataset.groupName;
+                const radioButtons = sectionElement.querySelectorAll(`input[type="radio"][name="${groupName}"]`);
+                radioButtons.forEach(rb => rb.disabled = !isEnabled);
+                if (field.dataset.conditionallyRequired === 'true' && isEnabled) {
+                    field.setAttribute('required', 'required'); // Mark container as required for validation logic
+                } else {
+                    field.removeAttribute('required');
+                }
+            } else {
+                 field.disabled = !isEnabled;
+                if (field.dataset.conditionallyRequired === 'true' && isEnabled) {
+                    field.setAttribute('required', 'required');
+                } else {
+                    field.removeAttribute('required');
+                }
+            }
+
+            if (!isEnabled) {
+                // Clear validation state
+                const parentFieldDiv = field.closest('.field'); // Find the .field ancestor
+                if (parentFieldDiv) {
+                    const indicator = parentFieldDiv.querySelector('.indicator');
+                    const errorMsg = parentFieldDiv.querySelector('.error-msg');
+                    if (indicator) indicator.className = 'indicator';
+                    if (errorMsg) {
+                         errorMsg.textContent = '';
+                         errorMsg.classList.remove('active');
+                    }
+                }
+                // Optionally clear values, but be careful with user experience
+                // if (field.type !== 'radio' && field.type !== 'checkbox' && !isRadioGroupContainer) field.value = '';
+            }
+        });
+    }
+
+    function handleInterestChange() {
+        const selectedInterest = interestSelect.value;
+        errorBox.style.display = 'none'; // Hide general form error on change
+
+        allConditionalSections.forEach(section => {
+            const wasVisible = section.style.display !== 'none';
+            section.style.display = 'none';
+            if (wasVisible) { // Only disable if it was visible and now hidden
+                setFieldStates(section, false);
+            }
+        });
+
+        let sectionToShow = null;
+        if (selectedInterest === 'Product Demo') sectionToShow = productDemoFields;
+        else if (selectedInterest === 'Consultation') sectionToShow = consultationFields;
+        else if (selectedInterest === 'Partnership Opportunity') sectionToShow = partnershipFields;
+        else if (selectedInterest === 'General Inquiry') sectionToShow = generalInquiryFields;
+
+        if (sectionToShow) {
+            sectionToShow.style.display = 'block';
+            setFieldStates(sectionToShow, true);
+            // Initial validation for fields in the newly shown section that might already have values (e.g., browser autofill)
+            // sectionToShow.querySelectorAll('[data-validate]').forEach(f => validateField(f));
+        }
+        validateField(interestSelect); // Validate the interest select itself
+    }
+
+    function validateField(field) {
+      if (field.disabled) return true; // Don't validate disabled fields
+
+      const val   = field.type === 'checkbox' ? field.checked : (field.value ? field.value.trim() : '');
+      const name  = field.name || field.id || (field.dataset.groupName ? field.dataset.groupName + "Group" : 'unnamed');
+      const isRequired = field.hasAttribute('required');
+      const isRadioGroupContainer = field.hasAttribute('data-group-name');
+
+      // For indicators/errors, get the parent .field div
+      const fieldContainer = field.closest('.field') || field; // If field is the container itself (like radio group)
+      const indicator = fieldContainer.querySelector('.indicator');
+      const errorMsg  = fieldContainer.querySelector('.error-msg');
+
+      let isValid = true;
+      let message = '';
+
+      // 1. Required check (if the field is marked as required)
+      if (isRequired && !val && !isRadioGroupContainer) { // For radio groups, val check is different
+        isValid = false;
+        message = `This field is required.`; // Generic, can be customized below
+      }
+      if (isRadioGroupContainer && isRequired) {
+          const groupName = field.dataset.groupName;
+          if (!form.querySelector(`input[name="${groupName}"]:checked`)) {
+              isValid = false;
+              message = `Please make a selection.`;
+          }
+      }
+
+
+      // 2. Specific validations (only if not already invalid from required check, or for optional fields with values)
+      if (isValid || (!isRequired && val !== '')) { // Check pattern even if optional but has value
+        switch (name) {
+          case 'firstName':
+          case 'lastName':
+            if (!patterns.name.test(val)) { isValid = false; message = `Please enter a valid name (min. 2 letters).`; }
+            break;
+          case 'country':
+            if (!val) { isValid = false; message = 'Please select your country.'; }
+            break;
+          case 'city':
+            if (!val) { isValid = false; message = 'Please select your city.'; }
+            break;
+          case 'pincode':
+            if (val && !patterns.pincode.test(val)) { isValid = false; message = 'Please enter a valid pincode/postal code.'; }
+            break;
+          case 'phone':
+            if (!patterns.phone.test(val)) { isValid = false; message = 'Please enter a valid phone number.'; }
+            break;
+          case 'email':
+            if (!patterns.email.test(val)) { isValid = false; message = 'Please enter a valid email address.'; }
+            break;
+          case 'company':
+            if (val.length < 2) { isValid = false; message = 'Please enter your company name (min. 2 chars).'; }
+            break;
+          case 'companySize':
+          case 'interest': // Interest select itself
+            if (!val) { isValid = false; message = 'Please make a selection.'; }
+            break;
+          case 'message': // Moved to bottom, optional
+            if (val.length > 500) { isValid = false; message = 'Please limit your message to 500 characters.'; }
+            break;
+
+          // --- Conditional Fields ---
+          case 'preferredDemoDate':
+          case 'consultationDate':
+            if (isRequired && !val) { isValid = false; message = 'Please select a date.'; }
+            else if (val) {
+              const selectedDate = new Date(val + "T00:00:00Z"); // Interpret as UTC to avoid timezone shifts from simple new Date(val)
+              const today = new Date();
+              today.setUTCHours(0, 0, 0, 0); // Compare dates only, in UTC
+
+              if (selectedDate < today) { isValid = false; message = 'Date must be today or in the future.'; }
+              else {
+                const day = selectedDate.getUTCDay(); // 0 = Sunday, 6 = Saturday
+                if (day === 0 || day === 6) { isValid = false; message = 'Please select a business day (Mon-Fri).'; }
+              }
+            }
+            break;
+          case 'preferredDemoTime':
+          case 'consultationTimeSlot': // Matched updated ID
+          case 'productInterest':
+          case 'consultationTopic':
+          case 'partnershipType':
+          case 'annualRevenue':
+          case 'inquiryCategory':
+            if (isRequired && !val) { isValid = false; message = 'Please make a selection.'; }
+            break;
+          case 'urgencyLevelGroup': // Validating the radio group container
+             // Required check handled above with isRadioGroupContainer
+            break;
+          case 'currentChallenges':
+            if (val.length > 500) { isValid = false; message = 'Max 500 characters.'; }
+            break;
+          case 'businessWebsite':
+            if (isRequired && !val) { isValid = false; message = 'Business website URL is required.'; }
+            else if (val && !patterns.url.test(val)) { isValid = false; message = 'Please enter a valid website URL (e.g., https://example.com).'; }
+            break;
+          case 'currentPartnerships':
+            if (val.length > 300) { isValid = false; message = 'Max 300 characters.'; }
+            break;
+          case 'partnershipGoals':
+            if (isRequired && (val.length < 10 || val.length > 500)) { isValid = false; message = 'Please describe goals (10-500 characters).'; }
+            break;
+          case 'howHeard': // Optional
+            // No specific validation if filled, just that it's not empty if required (but it's optional)
+            break;
+        }
+      }
+
+      if (indicator) { // Ensure indicator exists
+        indicator.className = isValid ? 'indicator success' : 'indicator error';
+      }
+      if (errorMsg) { // Ensure errorMsg exists
+        errorMsg.textContent = message;
+        errorMsg.classList.toggle('active', !isValid);
+      }
+      return isValid;
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initial state: disable all conditional fields
+      allConditionalSections.forEach(section => setFieldStates(section, false));
+
+      // Load country->city lookup
+      google.script.run.withSuccessHandler(d => {
+        countryData = d;
+        Object.keys(d).sort().forEach(cn => {
+          const opt = document.createElement('option');
+          opt.value = cn; opt.textContent = cn;
+          countrySelect.append(opt);
+        });
+      }).getCountryData();
+
+      // When country changes -> repopulate cities + code
+      countrySelect.addEventListener('change', () => {
+        const cn = countrySelect.value;
+        citySelect.innerHTML = '<option value="">--Select--</option>'; // Reset city
+        countryCode.value = cn ? countryData[cn].code : '';
+        if (cn && countryData[cn]) {
+          countryData[cn].cities.forEach(ct => {
+            const opt = document.createElement('option');
+            opt.value = ct; opt.textContent = ct;
+            citySelect.append(opt);
+          });
+        }
+        validateField(countrySelect); // Validate country field
+        validateField(citySelect);    // Validate city field (it might become required/invalid)
+      });
+
+      // Event listener for interest dropdown
+      interestSelect.addEventListener('change', handleInterestChange);
+
+      // Blur validation for all fields that have data-validate (and are not disabled)
+      form.querySelectorAll('[data-validate]').forEach(f => {
+          // For radio groups, attach blur to each radio button
+          if(f.hasAttribute('data-group-name')){
+              const groupName = f.dataset.groupName;
+              form.querySelectorAll(`input[name="${groupName}"]`).forEach(radio => {
+                  radio.addEventListener('blur', () => validateField(f)); // Validate the container
+                  radio.addEventListener('change', () => validateField(f)); // Also on change
+              });
+          } else {
+            f.addEventListener('blur', () => validateField(f));
+            if (f.tagName === 'SELECT') { // Also validate selects on change
+                f.addEventListener('change', () => validateField(f));
+            }
+          }
+      });
+
+
+      // On submit
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        errorBox.style.display = 'none';
+        let allValid = true;
+
+        // Collect ALL fields that should be validated:
+        // - Has [data-validate]
+        // - Is not disabled
+        const fieldsToValidate = Array.from(form.querySelectorAll('[data-validate]:not([disabled])'));
+
+        fieldsToValidate.forEach(f => {
+          if (!validateField(f)) allValid = false;
+        });
+
+        if (!allValid) {
+          errorBox.textContent = 'Please fill in all required fields correctly.';
+          errorBox.style.display = 'block';
+          // Find first invalid field and focus it for better UX
+          const firstInvalidField = fieldsToValidate.find(f => !validateField(f));
+          if (firstInvalidField) {
+              if(firstInvalidField.hasAttribute('data-group-name')){
+                  form.querySelector(`input[name="${firstInvalidField.dataset.groupName}"]`).focus();
+              } else {
+                firstInvalidField.focus();
+              }
+          }
+          return;
+        }
+
+        // Gather & send
+        const formData = new FormData(form);
+        const dataObject = {};
+        // Filter out disabled fields manually if FormData includes them (behavior varies)
+        for (let [key, value] of formData.entries()) {
+            const fieldElement = form.elements[key];
+            if (fieldElement && ( (Array.isArray(fieldElement) && fieldElement.length > 0 && !fieldElement[0].disabled) || (fieldElement && !fieldElement.disabled) ) ) {
+                 // For radio buttons, FormData correctly gets the value of the checked one.
+                dataObject[key] = value;
+            }
+        }
+
+
+        submitButton.textContent = 'Submitting…';
+        submitButton.disabled = true;
+
+        google.script.run
+          .withSuccessHandler(res => {
+            submitButton.textContent = 'Submit';
+            submitButton.disabled = false;
+            if (res.status === 'success') {
+              form.reset(); // Resets basic fields
+
+              // Manually reset conditional sections and states
+              allConditionalSections.forEach(section => {
+                section.style.display = 'none';
+                setFieldStates(section, false);
+              });
+              interestSelect.value = ''; // Reset interest dropdown
+              citySelect.innerHTML = '<option value="">--Select country first--</option>';
+              countryCode.value = '';
+
+              // Clear all indicators and error messages explicitly
+              form.querySelectorAll('.indicator').forEach(ind => ind.className = 'indicator');
+              form.querySelectorAll('.error-msg').forEach(em => {
+                em.textContent = '';
+                em.classList.remove('active');
+              });
+
+              alert('Thank you! Your information has been submitted.');
+            } else {
+              errorBox.textContent = 'Submission failed: ' + (res.message || 'Unknown error');
+              errorBox.style.display = 'block';
+              alert('Submission failed: ' + (res.message || 'Unknown error'));
+            }
+          })
+          .withFailureHandler(err => {
+              submitButton.textContent = 'Submit';
+              submitButton.disabled = false;
+              errorBox.textContent = 'Submission error: ' + err.message;
+              errorBox.style.display = 'block';
+              alert('Submission error: ' + err.message);
+          })
+          .saveForm(dataObject); // Send the filtered dataObject
+      });
+    });
+  </script>
+</body>
+</html>
