@@ -1,0 +1,80 @@
+Country,City,Country Code
+United States,New York metropolitan area,1
+United States,Los Angeles-Long Beach-Anaheim,1
+United States,Chicago-Naperville-Elgin,1
+United States,Houston-The Woodlands-Sugar Land,1
+United States,Dallas-Fort Worth-Arlington,1
+United States,Washington-Arlington-Alexandria,1
+United States,Boston-Cambridge-Newton,1
+United States,San Francisco-Oakland-Berkeley,1
+United States,Denver-Aurora-Lakewood,1
+United States,Detroit-Warren-Dearborn,1
+United States,Miami-Fort Lauderdale-West Palm Beach,1
+United States,Philadelphia-Camden-Wilmington,1
+United States,Atlanta-Sandy Springs-Alpharetta,1
+United States,Phoenix-Mesa-Chandler,1
+United States,Seattle-Tacoma-Bellevue,1
+United States,Minneapolis-St. Paul-Bloomington,1
+United States,San Diego-Chula Vista-Carlsbad,1
+United States,Tampa-St. Petersburg-Clearwater,1
+United States,Orlando-Kissimmee-Sanford,1
+United States,St. Louis,1
+China,Beijing,86
+China,Shenzhen,86
+China,Chongqing,86
+China,Guangzhou,86
+China,Suzhou,86
+China,Shanghai,86
+China,Tianjin,86
+China,Wuhan,86
+China,Chengdu,86
+China,Hangzhou,86
+China,Nanjing,86
+China,Dongguan,86
+China,Qingdao,86
+China,Xi'an,86
+China,Zhengzhou,86
+China,Changsha,86
+China,Foshan,86
+China,Shenyang,86
+China,Dalian,86
+China,Ningbo,86
+India,Mumbai,91
+India,Delhi,91
+India,Kolkata,91
+India,Bangalore,91
+India,Chennai,91
+India,Hyderabad,91
+India,Ahmedabad,91
+India,Pune,91
+India,Surat,91
+India,Jaipur,91
+India,Lucknow,91
+India,Kanpur,91
+India,Nagpur,91
+India,Indore,91
+India,Thane,91
+India,Bhopal,91
+India,Patna,91
+India,Vadodara,91
+India,Ghaziabad,91
+India,Ludhiana,91
+Japan,Greater Tokyo Area,81
+Japan,Osaka-Kobe-Kyoto,81
+Japan,Nagoya,81
+Japan,Fukuoka-Kitakyushu,81
+Japan,Sapporo,81
+Germany,Berlin,49
+Germany,Munich,49
+Germany,Hamburg,49
+Germany,Frankfurt,49
+Germany,Stuttgart,49
+United Kingdom,London metropolitan area,44
+France,Paris metropolitan area,33
+Italy,Rome,39
+Italy,Milan,39
+Canada,Greater Toronto and Hamilton Area,1
+Brazil,Greater São Paulo,55
+Mexico,Greater Mexico City,52
+Indonesia,Jakarta metropolitan area,62
+Hong Kong,Hong Kong,852
